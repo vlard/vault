@@ -1,7 +1,7 @@
 #!/bin/bash
 
-wget https://releases.hashicorp.com/vault/0.11.4/vault_0.11.4_linux_amd64.zip
-sudo unzip vault_0.11.4_linux_amd64.zip -d /usr/local/bin
+wget https://releases.hashicorp.com/vault/0.11.4/vault_0.11.4_linux_amd64.zip /usr/local/bin
+sudo unzip /usr/local/bin/vault_0.11.4_linux_amd64.zip -d /usr/local/bin
 sudo cp vault.cfg /usr/local/etc/vault.cfg
 sudo cp vault.service /usr/lib/systemd/system/vault.service
 mydns=$(ec2-metadata | grep public-hostname | cut -d ":" -f2 | xargs)
@@ -15,4 +15,4 @@ echo "export VAULT_ADDR VAULT_SKIP_VERIFY" >> .bash_profile
 export VAULT_SKIP_VERIFY VAULT_ADDR
 sudo systemctl enable vault.service
 sudo systemctl start vault.service
-/usr/local/bin/vault operator init > keys
+/usr/local/bin/vault operator init > /etc/keys
