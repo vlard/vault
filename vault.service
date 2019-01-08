@@ -1,0 +1,8 @@
+[Unit]
+Description=HashiCorp Vault Service
+
+[Service]
+ExecStart=/usr/local/bin/vault server -config=/usr/local/etc/vault.cfg
+
+[Install]
+WantedBy=multi-user.target

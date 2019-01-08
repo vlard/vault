@@ -1,0 +1,18 @@
+#!/bin/bash
+
+wget https://releases.hashicorp.com/vault/0.11.4/vault_0.11.4_linux_amd64.zip
+sudo unzip vault_0.11.4_linux_amd64.zip -d /usr/local/bin
+sudo cp vault.cfg /usr/local/etc/vault.cfg
+sudo cp vault.service /usr/lib/systemd/system/vault.service
+mydns=$(ec2-metadata | grep public-hostname | cut -d ":" -f2 | xargs)
+sudo openssl req -new -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -subj "/C=UK/ST=London/L=London/O=AL/OU=dev/CN=$mydns/EA=vlad@al.com" -out /usr/local/etc/vault.crt -keyout /usr/local/etc/vault.key
+sudo systemctl daemon-reload
+VAULT_ADDR=https://$mydns:8200
+VAULT_SKIP_VERIFY=1
+echo "VAULT_ADDR=$VAULT_ADDR" >> .bash_profile
+echo "VAULT_SKIP_VERIFY=$VAULT_SKIP_VERIFY" >> .bash_profile
+echo "export VAULT_ADDR VAULT_SKIP_VERIFY" >> .bash_profile
+export VAULT_SKIP_VERIFY VAULT_ADDR
+sudo systemctl enable vault.service
+sudo systemctl start vault.service
+/usr/local/bin/vault operator init > keys
