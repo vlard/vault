@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# this has only been tested on amazon linux 2 so far
+# this has only been tested on redhat so far
 # this copies the vault file down
 sudo wget https://releases.hashicorp.com/vault/0.11.4/vault_0.11.4_linux_amd64.zip -P /usr/local/bin
 sudo unzip /usr/local/bin/vault_0.11.4_linux_amd64.zip -d /usr/local/bin
@@ -10,16 +10,16 @@ sudo cp vault.cfg /usr/local/etc/vault.cfg
 sudo cp vault.service /usr/lib/systemd/system/vault.service
 
 # this finds the dns of the instance
-mydns=$(ec2-metadata | grep public-hostname | cut -d ":" -f2 | xargs)
+mydns=$(curl ifconfig.me)
 
 # creating ssl certificates
 sudo openssl req -new -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -subj "/C=UK/ST=London/L=London/O=AL/OU=dev/CN=$mydns/EA=vlad@al.com" -out /usr/local/etc/vault.crt -keyout /usr/local/etc/vault.key
 sudo systemctl daemon-reload
 VAULT_ADDR=https://$mydns:8200
 VAULT_SKIP_VERIFY=1
-echo "VAULT_ADDR=$VAULT_ADDR" >> .bash_profile
-echo "VAULT_SKIP_VERIFY=$VAULT_SKIP_VERIFY" >> .bash_profile
-echo "export VAULT_ADDR VAULT_SKIP_VERIFY" >> .bash_profile
+echo "VAULT_ADDR=$VAULT_ADDR" >> ~/.bash_profile
+echo "VAULT_SKIP_VERIFY=$VAULT_SKIP_VERIFY" >> ~/.bash_profile
+echo "export VAULT_ADDR VAULT_SKIP_VERIFY" >> ~/.bash_profile
 export VAULT_SKIP_VERIFY VAULT_ADDR
 
 # starting vault
@@ -27,4 +27,4 @@ sudo systemctl enable vault.service
 sudo systemctl start vault.service
 
 # print vault keys out, vault initialized and locked
-sudo /usr/local/bin/vault operator init > /etc/keys
+/usr/local/bin/vault operator init > /tmp/keys
